@@ -8,6 +8,7 @@ LinguaChat connects directly to the OpenAI API (or any compatible provider) from
 
 Your API key never leaves your device and is stored exclusively in your browser's local storage.
 
+
 ## Features
 
 - Chat-based language practice with any OpenAI-compatible LLM
@@ -15,6 +16,11 @@ Your API key never leaves your device and is stored exclusively in your browser'
 - Speech synthesis for listening practice (OpenAI-compatible TTS required)
 - Fully client-side — no backend, no telemetry
 - Responsive design for desktop and mobile
+
+<img width="300" alt="Chat list" src="https://github.com/user-attachments/assets/58cb654f-0c49-4a9f-bad3-8a933eb1398f" />
+<img width="300" alt="Chat view" src="https://github.com/user-attachments/assets/f2ece28f-a2df-4222-a2e0-0dd098c18d34" />
+<img width="300" alt="Settings" src="https://github.com/user-attachments/assets/68ae9553-ffba-4f78-9866-ee1a6bc634a4" />
+
 
 ## Deploy Your Own
 
