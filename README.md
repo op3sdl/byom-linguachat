@@ -24,7 +24,9 @@ Your API key never leaves your device and is stored exclusively in your browser'
 
 ## Deploy Your Own
 
-LinguaChat is a static single-page application that can be hosted anywhere. The easiest way to get your own instance is [Cloudflare Workers](https://workers.cloudflare.com/):
+LinguaChat is a static single-page application that can be hosted anywhere.
+
+The easiest way to get your own instance is [Cloudflare Workers](https://workers.cloudflare.com/):
 
 1. Fork or clone this repository
 2. Install dependencies:
