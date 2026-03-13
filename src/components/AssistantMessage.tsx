@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ChevronDown, Volume2, Loader2, Square, AlertCircle, Copy, Check } from 'lucide-react';
 import type { AssistantMessage as AssistantMessageType } from '../types';
@@ -10,6 +10,7 @@ import {
 } from "./ui/collapsible";
 import { useSpeech, type SpeechState } from '../hooks/useSpeech';
 import { useSettingsStore } from '../store/settingsStore';
+import { useExplanationsStore } from '../store/explanationsStore';
 import { Button } from './ui/button';
 
 interface AssistantMessageProps {
@@ -86,6 +87,19 @@ function AssistantMessage({ message }: AssistantMessageProps) {
   const settings = useSettingsStore((state) => state.settings);
   const correctionSpeech = useSpeech(settings);
   const responseSpeech = useSpeech(settings);
+  const responseRef = useRef<HTMLDivElement>(null);
+
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const selectedText = selection.toString().trim();
+    if (!selectedText) return;
+
+    if (responseRef.current && responseRef.current.contains(selection.anchorNode)) {
+      useExplanationsStore.getState().setSelection(selectedText, message.response || '');
+    }
+  };
 
   return (
     <div className="flex justify-start mb-4">
@@ -172,7 +186,12 @@ function AssistantMessage({ message }: AssistantMessageProps) {
                   state={responseSpeech.state}
                 />
               </div>
-              <div className="prose prose-sm max-w-none">
+              <div
+                ref={responseRef}
+                onMouseUp={handleTextSelection}
+                onTouchEnd={handleTextSelection}
+                className="prose prose-sm max-w-none"
+              >
                 <ReactMarkdown>{message.response}</ReactMarkdown>
               </div>
             </div>

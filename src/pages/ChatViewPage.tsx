@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { ChevronLeft, Settings } from 'lucide-react';
+import { ChevronLeft, Settings, HelpCircle, Loader2 } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
+import { useExplanationsStore } from '../store/explanationsStore';
 import { useChats } from '../hooks/useChats';
 import MessageInput from '../components/MessageInput';
 import UserMessage from '../components/UserMessage';
@@ -11,11 +12,13 @@ import ErrorMessage from '../components/ErrorMessage';
 import EmptyChatPlaceholder from '../components/EmptyChatPlaceholder';
 import NotConfiguredPlaceholder from '../components/NotConfiguredPlaceholder';
 import ChatNotFoundPlaceholder from '../components/ChatNotFoundPlaceholder';
+import { ExplanationDialog } from '../components/ExplanationDialog';
 import { Button } from '../components/ui/button';
 import {
   sendMessage,
   buildChatMessages,
 } from '../services/chatService';
+import { explain } from '../services/explanationService';
 import { ChatError } from '../errors';
 import type { UserMessage as UserMessageType, ErrorMessage as ErrorMessageType } from '../types';
 
@@ -33,6 +36,14 @@ function ChatViewPage() {
 
   const activeChat = chats.find((conv) => conv.id === id);
   const settingsLink = `/settings?fromChat=${id}`;
+
+  const explanationSelection = useExplanationsStore((state) => state.explanationSelection);
+  const explanationSelectionContext = useExplanationsStore((state) => state.explanationSelectionContext);
+  const isExplanationLoading = useExplanationsStore((state) => state.isLoading);
+  const setExplanationLoading = useExplanationsStore((state) => state.setLoading);
+  const setExplanation = useExplanationsStore((state) => state.setExplanation);
+  const setExplanationError = useExplanationsStore((state) => state.setError);
+  const openExplanationDialog = useExplanationsStore((state) => state.openDialog);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -108,6 +119,39 @@ function ChatViewPage() {
     }
   }, [isSending, messageQueue, handleSendMessage]);
 
+  const handleExplain = useCallback(async () => {
+    if (!explanationSelection || !explanationSelectionContext) {
+      return;
+    }
+
+    setExplanationLoading(true);
+
+    try {
+      const result = await explain(
+        { selection: explanationSelection, context: explanationSelectionContext },
+        settings
+      );
+      setExplanation(result);
+      setExplanationError(null);
+      openExplanationDialog();
+    } catch (error) {
+      console.error('Error generating explanation:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to generate explanation';
+      setExplanationError(errorMsg);
+      openExplanationDialog();
+    } finally {
+      setExplanationLoading(false);
+    }
+  }, [
+    explanationSelection,
+    explanationSelectionContext,
+    settings,
+    setExplanationLoading,
+    setExplanation,
+    setExplanationError,
+    openExplanationDialog,
+  ]);
+
   function renderContent() {
     if (!activeChat) {
       return <ChatNotFoundPlaceholder onGoToChats={() => navigate("/")} />;
@@ -173,6 +217,19 @@ function ChatViewPage() {
           <h1 className="flex-1 text-center font-semibold text-foreground truncate px-2">
             {activeChat?.title}
           </h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Explain selection"
+            disabled={!explanationSelection || isExplanationLoading}
+            onClick={handleExplain}
+          >
+            {isExplanationLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <HelpCircle className="h-5 w-5" />
+            )}
+          </Button>
           <Button variant="ghost" size="icon" aria-label="Settings" asChild>
             <Link to={settingsLink}>
               <Settings className="h-5 w-5" />
@@ -192,6 +249,8 @@ function ChatViewPage() {
         disabled={false}
         isLoading={isSending}
       />
+
+      <ExplanationDialog />
     </div>
   );
 }

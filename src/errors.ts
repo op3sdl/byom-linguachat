@@ -40,3 +40,14 @@ export class SpeechError extends AppError {
     this.name = "SpeechError";
   }
 }
+
+/**
+ * Thrown when the explanation request fails.
+ * Proxies the underlying API error message.
+ */
+export class ExplanationError extends AppError {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "ExplanationError";
+  }
+}

@@ -13,6 +13,11 @@ export interface Correction {
   translation: string;
 }
 
+export interface Explanation {
+  translation: string;
+  explanation: string;
+}
+
 export interface UserMessage {
   id: string;
   role: "user";
