@@ -10,6 +10,7 @@ export interface Correction {
   original: string;
   corrected: string;
   explanation: string;
+  translation: string;
 }
 
 export interface UserMessage {

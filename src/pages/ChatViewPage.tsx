@@ -15,9 +15,8 @@ import { Button } from '../components/ui/button';
 import {
   sendMessage,
   buildChatMessages,
-  parseAssistantMessage,
 } from '../services/chatService';
-import { ParsingError, ChatError } from '../errors';
+import { ChatError } from '../errors';
 import type { UserMessage as UserMessageType, ErrorMessage as ErrorMessageType } from '../types';
 
 function ChatViewPage() {
@@ -66,17 +65,7 @@ function ChatViewPage() {
 
       const chatMessages = buildChatMessages(activeChat.messages, messageText, settings);
 
-      let accumulatedResponse = '';
-      const assistantMessageId = uuidv4();
-      const assistantCreatedAt = new Date().toISOString();
-
-      for await (const chunk of sendMessage(chatMessages, settings)) {
-        accumulatedResponse += chunk;
-      }
-
-      const parsedMessage = parseAssistantMessage(accumulatedResponse);
-      parsedMessage.id = assistantMessageId;
-      parsedMessage.createdAt = assistantCreatedAt;
+      const parsedMessage = await sendMessage(chatMessages, settings);
 
       addMessage(id, parsedMessage);
 
@@ -84,9 +73,7 @@ function ChatViewPage() {
       console.error('Error sending message:', error);
 
       let errorMsg: string;
-      if (error instanceof ParsingError) {
-        errorMsg = 'The AI response was malformed. Please try again.';
-      } else if (error instanceof ChatError) {
+      if (error instanceof ChatError) {
         errorMsg = error.message;
       } else if (error instanceof Error) {
         errorMsg = error.message;

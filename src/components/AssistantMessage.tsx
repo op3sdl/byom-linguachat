@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ChevronDown, Volume2, Loader2, Square, AlertCircle } from 'lucide-react';
+import { ChevronDown, Volume2, Loader2, Square, AlertCircle, Copy, Check } from 'lucide-react';
 import type { AssistantMessage as AssistantMessageType } from '../types';
 import { Card, CardContent } from './ui/card';
 import {
@@ -19,6 +19,29 @@ interface AssistantMessageProps {
 interface SpeechButtonProps {
   onClick: () => void;
   state: SpeechState;
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleCopy}
+      title={copied ? "Copied" : "Copy"}
+      className="h-7 px-2"
+    >
+      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+    </Button>
+  );
 }
 
 function SpeechButton({ onClick, state }: SpeechButtonProps) {
@@ -56,8 +79,9 @@ function SpeechButton({ onClick, state }: SpeechButtonProps) {
 }
 
 function AssistantMessage({ message }: AssistantMessageProps) {
-  const [isCorrectionExpanded, setIsCorrectionExpanded] = useState(true);
-  const [isTranslationExpanded, setIsTranslationExpanded] = useState(false);
+  const [isCorrectionExplanationExpanded, setIsCorrectionExplanationExpanded] = useState(true);
+  const [isCorrectionTranslationExpanded, setIsCorrectionTranslationExpanded] = useState(false);
+  const [isResponseTranslationExpanded, setIsResponseTranslationExpanded] = useState(false);
 
   const settings = useSettingsStore((state) => state.settings);
   const correctionSpeech = useSpeech(settings);
@@ -68,57 +92,74 @@ function AssistantMessage({ message }: AssistantMessageProps) {
       <div className="w-full">
         {message.correction && (
           <Card className="mb-3 bg-muted">
-            <Collapsible
-              open={isCorrectionExpanded}
-              onOpenChange={setIsCorrectionExpanded}
-            >
-              <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-accent transition-colors">
-                Correction
-                <ChevronDown
-                  className={`w-5 h-5 text-muted-foreground transition-transform ${
-                    isCorrectionExpanded ? "rotate-180" : ""
-                  }`}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent className="px-4 pb-4 space-y-3 pt-0">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-1">
-                      Your message:
-                    </div>
-                    <div className="bg-card rounded px-3 py-2 text-card-foreground border border-border">
-                      {message.correction.original}
-                    </div>
+            <div className="px-4 pt-4 text-sm font-medium text-muted-foreground">
+              Correction
+            </div>
+            <CardContent className="px-4 pb-4 space-y-3 pt-0">
+              <div>
+                <div className="text-sm font-medium text-muted-foreground mb-1">
+                  Your message:
+                </div>
+                <div className="bg-card rounded px-3 py-2 text-card-foreground border border-border">
+                  {message.correction.original}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-muted-foreground mb-1 flex items-center justify-between">
+                  <span>Better way to say it:</span>
+                  <div className="flex items-center gap-1">
+                    <CopyButton text={message.correction.corrected} />
+                    <SpeechButton
+                      onClick={() =>
+                        correctionSpeech.play(message.correction.corrected)
+                      }
+                      state={correctionSpeech.state}
+                    />
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-1 flex items-center justify-between">
-                      <span>Better way to say it:</span>
-                      <SpeechButton
-                        onClick={() =>
-                          correctionSpeech.play(message.correction.corrected)
-                        }
-                        state={correctionSpeech.state}
-                      />
-                    </div>
-                    <div className="bg-card rounded px-3 py-2 text-card-foreground border border-green-300 border-l-4">
-                      {message.correction.corrected}
-                    </div>
+                </div>
+                <div className="bg-card rounded px-3 py-2 text-card-foreground border border-green-300 border-l-4">
+                  {message.correction.corrected}
+                </div>
+              </div>
+              <Collapsible
+                open={isCorrectionExplanationExpanded}
+                onOpenChange={setIsCorrectionExplanationExpanded}
+              >
+                <CollapsibleTrigger className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-accent transition-colors">
+                  Explanation
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform ${isCorrectionExplanationExpanded ? "rotate-180" : ""
+                      }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="prose prose-sm max-w-none p-4">
+                    <ReactMarkdown>{message.correction.explanation}</ReactMarkdown>
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-1">
-                      Explanation:
-                    </div>
-                    <div className="text-foreground text-sm">
-                      {message.correction.explanation}
-                    </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              <Collapsible
+                open={isCorrectionTranslationExpanded}
+                onOpenChange={setIsCorrectionTranslationExpanded}
+              >
+                <CollapsibleTrigger className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-accent transition-colors">
+                  Translation
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform ${isCorrectionTranslationExpanded ? "rotate-180" : ""
+                      }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="prose prose-sm max-w-none p-4">
+                    <ReactMarkdown>{message.correction.translation}</ReactMarkdown>
                   </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
+                </CollapsibleContent>
+              </Collapsible>
+            </CardContent>
           </Card>
         )}
 
-        {/* Response in target language */}
         {message.response && (
           <Card>
             <div className="px-4 pt-4">
@@ -135,26 +176,23 @@ function AssistantMessage({ message }: AssistantMessageProps) {
                 <ReactMarkdown>{message.response}</ReactMarkdown>
               </div>
             </div>
-            <div>
-              <Collapsible
-                open={isTranslationExpanded}
-                onOpenChange={setIsTranslationExpanded}
-              >
-                <CollapsibleTrigger className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-accent transition-colors">
-                  Translation
-                  <ChevronDown
-                    className={`w-4 h-4 text-muted-foreground transition-transform ${
-                      isTranslationExpanded ? "rotate-180" : ""
+            <Collapsible
+              open={isResponseTranslationExpanded}
+              onOpenChange={setIsResponseTranslationExpanded}
+            >
+              <CollapsibleTrigger className="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-accent transition-colors">
+                Translation
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${isResponseTranslationExpanded ? "rotate-180" : ""
                     }`}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="prose prose-sm max-w-none p-4">
-                    <ReactMarkdown>{message.translation}</ReactMarkdown>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="prose prose-sm max-w-none p-4">
+                  <ReactMarkdown>{message.translation}</ReactMarkdown>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
         )}
       </div>
