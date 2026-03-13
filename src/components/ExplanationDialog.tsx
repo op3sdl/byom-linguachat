@@ -107,7 +107,10 @@ export function LiveExplanationDialog() {
       explanation={explanation}
       isLoading={isLoading}
       error={error}
-      onSave={saveExplanation}
+      onSave={() => {
+        saveExplanation();
+        closeDialog();
+      }}
     />
   );
 }
