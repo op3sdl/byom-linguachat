@@ -12,7 +12,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import EmptyChatPlaceholder from '../components/EmptyChatPlaceholder';
 import NotConfiguredPlaceholder from '../components/NotConfiguredPlaceholder';
 import ChatNotFoundPlaceholder from '../components/ChatNotFoundPlaceholder';
-import { ExplanationDialog } from '../components/ExplanationDialog';
+import { LiveExplanationDialog } from '../components/ExplanationDialog';
 import { Button } from '../components/ui/button';
 import {
   sendMessage,
@@ -250,7 +250,7 @@ function ChatViewPage() {
         isLoading={isSending}
       />
 
-      <ExplanationDialog />
+      <LiveExplanationDialog />
     </div>
   );
 }
