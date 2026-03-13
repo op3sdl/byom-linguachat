@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Settings, Trash2 } from 'lucide-react';
+import { BookOpen, Settings, Trash2 } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
 import { useChats } from '../hooks/useChats';
 import { Button } from '@/components/ui/button';
@@ -45,11 +45,18 @@ function ChatsListPage() {
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">LinguaChat</h1>
-          <Button variant="ghost" size="icon" aria-label="Settings" asChild>
-            <Link to="/settings">
-              <Settings className="h-5 w-5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" aria-label="Saved Explanations" asChild>
+              <Link to="/saved-explanations">
+                <BookOpen className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Settings" asChild>
+              <Link to="/settings">
+                <Settings className="h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <Button onClick={handleNewChat} className="w-full mb-4">
