@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { ChevronLeft, Settings, HelpCircle, Loader2 } from 'lucide-react';
+import { HelpCircle, Loader2, Volume2, Square } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
 import { useExplanationsStore } from '../store/explanationsStore';
 import { useChats } from '../hooks/useChats';
+import { useSpeech } from '../hooks/useSpeech';
 import MessageInput from '../components/MessageInput';
 import UserMessage from '../components/UserMessage';
 import AssistantMessage from '../components/AssistantMessage';
@@ -13,6 +14,7 @@ import EmptyChatPlaceholder from '../components/EmptyChatPlaceholder';
 import NotConfiguredPlaceholder from '../components/NotConfiguredPlaceholder';
 import ChatNotFoundPlaceholder from '../components/ChatNotFoundPlaceholder';
 import { LiveExplanationDialog } from '../components/ExplanationDialog';
+import AppHeader from '../components/AppHeader';
 import { Button } from '../components/ui/button';
 import {
   sendMessage,
@@ -35,7 +37,8 @@ function ChatViewPage() {
   const isProcessingQueue = useRef(false);
 
   const activeChat = chats.find((conv) => conv.id === id);
-  const settingsLink = `/settings?fromChat=${id}`;
+
+  const speech = useSpeech(settings);
 
   const explanationSelection = useExplanationsStore((state) => state.explanationSelection);
   const explanationSelectionContext = useExplanationsStore((state) => state.explanationSelectionContext);
@@ -154,11 +157,11 @@ function ChatViewPage() {
 
   function renderContent() {
     if (!activeChat) {
-      return <ChatNotFoundPlaceholder onGoToChats={() => navigate("/")} />;
+      return <ChatNotFoundPlaceholder onGoToChats={() => navigate("/chats")} />;
     }
 
     if (!settings.apiKey.trim()) {
-      return <NotConfiguredPlaceholder onGoToSettings={() => navigate(settingsLink)} />;
+      return <NotConfiguredPlaceholder onGoToSettings={() => navigate("/settings")} />;
     }
 
     if (activeChat.messages.length === 0 && !isSending) {
@@ -203,40 +206,36 @@ function ChatViewPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header bar */}
-      <header className="bg-card border-b border-border px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/")}
-            className="flex-shrink-0"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="flex-1 text-center font-semibold text-foreground truncate px-2">
-            {activeChat?.title}
-          </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Explain selection"
-            disabled={!explanationSelection || isExplanationLoading}
-            onClick={handleExplain}
-          >
-            {isExplanationLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <HelpCircle className="h-5 w-5" />
-            )}
-          </Button>
-          <Button variant="ghost" size="icon" aria-label="Settings" asChild>
-            <Link to={settingsLink}>
-              <Settings className="h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
-      </header>
+      <AppHeader title={activeChat?.title ?? ""}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Explain selection"
+          disabled={!explanationSelection || isExplanationLoading}
+          onClick={handleExplain}
+        >
+          {isExplanationLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <HelpCircle className="h-5 w-5" />
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Read aloud"
+          disabled={!explanationSelection || speech.state === "loading"}
+          onClick={() => explanationSelection && speech.play(explanationSelection)}
+        >
+          {speech.state === "loading" ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : speech.state === "playing" ? (
+            <Square className="h-5 w-5" />
+          ) : (
+            <Volume2 className="h-5 w-5" />
+          )}
+        </Button>
+      </AppHeader>
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-8">
