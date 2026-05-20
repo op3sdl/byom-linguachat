@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { HelpCircle, Loader2, Volume2, Square } from 'lucide-react';
+import { HelpCircle, Loader2, Volume2, Square, CheckCircle } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
 import { useExplanationsStore } from '../store/explanationsStore';
 import { useChats } from '../hooks/useChats';
@@ -13,7 +13,6 @@ import ErrorMessage from '../components/ErrorMessage';
 import EmptyChatPlaceholder from '../components/EmptyChatPlaceholder';
 import NotConfiguredPlaceholder from '../components/NotConfiguredPlaceholder';
 import ChatNotFoundPlaceholder from '../components/ChatNotFoundPlaceholder';
-import { LiveExplanationDialog } from '../components/ExplanationDialog';
 import AppHeader from '../components/AppHeader';
 import { Button } from '../components/ui/button';
 import {
@@ -37,6 +36,7 @@ function ChatViewPage() {
   const isProcessingQueue = useRef(false);
 
   const activeChat = chats.find((conv) => conv.id === id);
+  const [explainSuccess, setExplainSuccess] = useState(false);
 
   const speech = useSpeech(settings);
 
@@ -46,7 +46,8 @@ function ChatViewPage() {
   const setExplanationLoading = useExplanationsStore((state) => state.setLoading);
   const setExplanation = useExplanationsStore((state) => state.setExplanation);
   const setExplanationError = useExplanationsStore((state) => state.setError);
-  const openExplanationDialog = useExplanationsStore((state) => state.openDialog);
+  const saveExplanation = useExplanationsStore((state) => state.saveExplanation);
+  const resetExplanation = useExplanationsStore((state) => state.reset);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -128,6 +129,7 @@ function ChatViewPage() {
     }
 
     setExplanationLoading(true);
+    setExplainSuccess(false);
 
     try {
       const result = await explain(
@@ -136,12 +138,16 @@ function ChatViewPage() {
       );
       setExplanation(result);
       setExplanationError(null);
-      openExplanationDialog();
+      saveExplanation();
+      setExplainSuccess(true);
+      setTimeout(() => {
+        setExplainSuccess(false);
+        resetExplanation();
+      }, 2000);
     } catch (error) {
       console.error('Error generating explanation:', error);
       const errorMsg = error instanceof Error ? error.message : 'Failed to generate explanation';
       setExplanationError(errorMsg);
-      openExplanationDialog();
     } finally {
       setExplanationLoading(false);
     }
@@ -152,7 +158,8 @@ function ChatViewPage() {
     setExplanationLoading,
     setExplanation,
     setExplanationError,
-    openExplanationDialog,
+    saveExplanation,
+    resetExplanation,
   ]);
 
   function renderContent() {
@@ -216,6 +223,8 @@ function ChatViewPage() {
         >
           {isExplanationLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
+          ) : explainSuccess ? (
+            <CheckCircle className="h-5 w-5" />
           ) : (
             <HelpCircle className="h-5 w-5" />
           )}
@@ -249,7 +258,6 @@ function ChatViewPage() {
         isLoading={isSending}
       />
 
-      <LiveExplanationDialog />
     </div>
   );
 }
