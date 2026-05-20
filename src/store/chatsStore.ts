@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateName } from '../utils/generateName';
 import type { Chat, Message } from '../types';
 
-const CONVERSATIONS_STORAGE_KEY = 'linguachat_chats';
+const CONVERSATIONS_STORAGE_KEY = 'llmingo_chats';
 
 interface ChatsState {
   chats: Chat[];

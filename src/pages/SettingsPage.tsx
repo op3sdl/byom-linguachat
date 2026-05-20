@@ -72,7 +72,7 @@ function SettingsPage() {
             <CardTitle>Settings</CardTitle>
             <CardDescription>
               Configure your API key and language preferences to start using
-              LinguaChat.
+              llmingo.
             </CardDescription>
           </CardHeader>
           <CardContent>

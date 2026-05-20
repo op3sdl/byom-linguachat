@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Settings } from '../types';
 
-const SETTINGS_STORAGE_KEY = 'linguachat_settings';
+const SETTINGS_STORAGE_KEY = 'llmingo_settings';
 
 export const DEFAULT_SETTINGS: Settings = {
   apiKey: '',

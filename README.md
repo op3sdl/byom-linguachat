@@ -1,10 +1,10 @@
-# LinguaChat
+# llmingo
 
 A local-only, BYOM (Bring Your Own Model) UI for chat-based language learning with LLMs.
 
 No accounts, no servers, no data collection — just you and the model of your choice.
 
-LinguaChat connects directly to the OpenAI API (or any compatible provider) from your browser.
+llmingo connects directly to the OpenAI API (or any compatible provider) from your browser.
 
 Your API key never leaves your device and is stored exclusively in your browser's local storage.
 
@@ -24,7 +24,7 @@ Your API key never leaves your device and is stored exclusively in your browser'
 
 ## Deploy Your Own
 
-LinguaChat is a static single-page application that can be hosted anywhere.
+llmingo is a static single-page application that can be hosted anywhere.
 
 The easiest way to get your own instance is [Cloudflare Workers](https://workers.cloudflare.com/):
 

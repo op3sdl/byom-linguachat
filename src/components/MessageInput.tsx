@@ -21,7 +21,7 @@ function MessageInput({ onSend, disabled = false, isLoading = false }: MessageIn
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -37,6 +37,7 @@ function MessageInput({ onSend, disabled = false, isLoading = false }: MessageIn
       <div className="max-w-4xl mx-auto flex gap-3 items-end">
         <div className="flex-1 relative">
           <Textarea
+            autoFocus
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyDown}

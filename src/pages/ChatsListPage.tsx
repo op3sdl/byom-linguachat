@@ -44,19 +44,12 @@ function ChatsListPage() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">LinguaChat</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Saved Explanations" asChild>
-              <Link to="/saved-explanations">
-                <BookOpen className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="Settings" asChild>
-              <Link to="/settings">
-                <Settings className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold">llmingo</h1>
+          <Button variant="ghost" size="icon" aria-label="Settings" asChild>
+            <Link to="/settings">
+              <Settings className="h-5 w-5" />
+            </Link>
+          </Button>
         </div>
 
         <Button onClick={handleNewChat} className="w-full mb-4">
