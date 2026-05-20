@@ -14,9 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExplanationDialogContent } from '../components/ExplanationDialog';
 import AppHeader from '../components/AppHeader';
-import type { SavedExplanation } from '../types';
 
 function SavedExplanationsListPage() {
   const navigate = useNavigate();
@@ -25,7 +23,6 @@ function SavedExplanationsListPage() {
   const savedExplanations = useExplanationsStore((state) => state.savedExplanations);
   const deleteExplanation = useExplanationsStore((state) => state.deleteExplanation);
 
-  const [viewingExplanation, setViewingExplanation] = useState<SavedExplanation | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const handleNewChat = () => {
@@ -64,7 +61,7 @@ function SavedExplanationsListPage() {
                 <Card
                   key={savedExp.id}
                   className="relative group hover:bg-accent cursor-pointer transition-colors"
-                  onClick={() => setViewingExplanation(savedExp)}
+                  onClick={() => navigate(`/explanation/${savedExp.id}`)}
                 >
                   <div className="p-4 pr-12">
                     <div className="font-medium text-sm truncate mb-1">
@@ -92,13 +89,6 @@ function SavedExplanationsListPage() {
           )}
         </div>
       </div>
-
-      <ExplanationDialogContent
-        open={viewingExplanation !== null}
-        onOpenChange={(open) => !open && setViewingExplanation(null)}
-        selection={viewingExplanation?.selection ?? null}
-        explanation={viewingExplanation?.explanation ?? null}
-      />
 
       <Dialog
         open={deleteConfirmId !== null}

@@ -4,6 +4,7 @@ import ChatsListPage from './pages/ChatsListPage';
 import ChatViewPage from './pages/ChatViewPage';
 import SettingsPage from './pages/SettingsPage';
 import SavedExplanationsListPage from './pages/SavedExplanationsListPage';
+import ExplanationViewPage from './pages/ExplanationViewPage';
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
         <Route path="/chat/:id" element={<ChatViewPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/explanations" element={<SavedExplanationsListPage />} />
-        <Route path="/explanation/:id" element={<div />} />
+        <Route path="/explanation/:id" element={<ExplanationViewPage />} />
       </Routes>
     </BrowserRouter>
   );
