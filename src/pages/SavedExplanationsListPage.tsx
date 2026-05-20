@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Settings, Trash2 } from 'lucide-react';
-import { useSettingsStore } from '../store/settingsStore';
-import { useChats } from '../hooks/useChats';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Trash2 } from 'lucide-react';
+import { useExplanationsStore } from '../store/explanationsStore';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -13,77 +12,67 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ExplanationDialogContent } from '../components/ExplanationDialog';
+import type { SavedExplanation } from '../types';
 
-function ChatsListPage() {
+function SavedExplanationsListPage() {
   const navigate = useNavigate();
-  const settings = useSettingsStore((state) => state.settings);
+  const savedExplanations = useExplanationsStore((state) => state.savedExplanations);
+  const deleteExplanation = useExplanationsStore((state) => state.deleteExplanation);
 
-  const { chats, createChat, deleteChat } = useChats();
+  const [viewingExplanation, setViewingExplanation] = useState<SavedExplanation | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const handleNewChat = () => {
-    const newChat = createChat(
-      settings.nativeLanguage,
-      settings.targetLanguage
-    );
-    navigate(`/chat/${newChat.id}`);
-  };
-
-  const handleSelectChat = (chatId: string) => {
-    navigate(`/chat/${chatId}`);
-  };
-
-  const handleDeleteChat = () => {
+  const handleDeleteExplanation = () => {
     if (deleteConfirmId) {
-      deleteChat(deleteConfirmId);
+      deleteExplanation(deleteConfirmId);
       setDeleteConfirmId(null);
     }
+  };
+
+  const truncateText = (text: string, maxLength: number = 60): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">LinguaChat</h1>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Saved Explanations" asChild>
-              <Link to="/saved-explanations">
-                <BookOpen className="h-5 w-5" />
-              </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/')}
+              aria-label="Back to chats"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Settings" asChild>
-              <Link to="/settings">
-                <Settings className="h-5 w-5" />
-              </Link>
-            </Button>
+            <h1 className="text-2xl font-bold">Saved Explanations</h1>
           </div>
         </div>
 
-        <Button onClick={handleNewChat} className="w-full mb-4">
-          New Chat
-        </Button>
-
-        {chats.length === 0 ? (
+        {savedExplanations.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-2">No chats yet</p>
+            <p className="text-muted-foreground mb-2">No saved explanations yet</p>
             <p className="text-sm text-muted-foreground">
-              Click "New Chat" above to start your first chat
+              Save explanations from your chats to review them later
             </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {chats.map((chat) => (
+            {savedExplanations.map((savedExp) => (
               <Card
-                key={chat.id}
+                key={savedExp.id}
                 className="relative group hover:bg-accent cursor-pointer transition-colors"
-                onClick={() => handleSelectChat(chat.id)}
+                onClick={() => setViewingExplanation(savedExp)}
               >
                 <div className="p-4 pr-12">
                   <div className="font-medium text-sm truncate mb-1">
-                    {chat.title}
+                    {truncateText(savedExp.selection)}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {new Date(chat.updatedAt).toLocaleDateString()}
+                    {new Date(savedExp.savedAt).toLocaleDateString()}
                   </div>
                 </div>
                 <Button
@@ -91,10 +80,10 @@ function ChatsListPage() {
                   size="icon"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setDeleteConfirmId(chat.id);
+                    setDeleteConfirmId(savedExp.id);
                   }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 transition-opacity"
-                  aria-label="Delete chat"
+                  aria-label="Delete explanation"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -104,6 +93,14 @@ function ChatsListPage() {
         )}
       </div>
 
+      {/* View Saved Explanation Dialog */}
+      <ExplanationDialogContent
+        open={viewingExplanation !== null}
+        onOpenChange={(open) => !open && setViewingExplanation(null)}
+        selection={viewingExplanation?.selection ?? null}
+        explanation={viewingExplanation?.explanation ?? null}
+      />
+
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteConfirmId !== null}
@@ -111,9 +108,9 @@ function ChatsListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Chat</DialogTitle>
+            <DialogTitle>Delete Explanation</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this chat? This action cannot be
+              Are you sure you want to delete this saved explanation? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -121,7 +118,7 @@ function ChatsListPage() {
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteChat}>
+            <Button variant="destructive" onClick={handleDeleteExplanation}>
               Delete
             </Button>
           </DialogFooter>
@@ -131,4 +128,4 @@ function ChatsListPage() {
   );
 }
 
-export default ChatsListPage;
+export default SavedExplanationsListPage;
