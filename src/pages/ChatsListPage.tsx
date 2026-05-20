@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Settings, Trash2 } from 'lucide-react';
+import { Settings, Trash2 } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
 import { useChats } from '../hooks/useChats';
 import { Button } from '@/components/ui/button';
