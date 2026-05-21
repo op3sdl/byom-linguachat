@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { HelpCircle, Loader2, Volume2, Square, CheckCircle } from 'lucide-react';
+import { HelpCircle, Loader2, Volume2, Square, CheckCircle, BookOpen } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
 import { useExplanationsStore } from '../store/explanationsStore';
 import { useChats } from '../hooks/useChats';
@@ -14,6 +14,7 @@ import EmptyChatPlaceholder from '../components/EmptyChatPlaceholder';
 import NotConfiguredPlaceholder from '../components/NotConfiguredPlaceholder';
 import ChatNotFoundPlaceholder from '../components/ChatNotFoundPlaceholder';
 import AppHeader from '../components/AppHeader';
+import ExplanationsSidebar from '../components/ExplanationsSidebar';
 import { Button } from '../components/ui/button';
 import {
   sendMessage,
@@ -30,6 +31,7 @@ function ChatViewPage() {
 
   const { chats, addMessage } = useChats();
 
+  const [explanationsSidebarOpen, setExplanationsSidebarOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [messageQueue, setMessageQueue] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -164,7 +166,7 @@ function ChatViewPage() {
 
   function renderContent() {
     if (!activeChat) {
-      return <ChatNotFoundPlaceholder onGoToChats={() => navigate("/chats")} />;
+      return <ChatNotFoundPlaceholder onNewChat={() => navigate("/")} />;
     }
 
     if (!settings.apiKey.trim()) {
@@ -244,7 +246,19 @@ function ChatViewPage() {
             <Volume2 className="h-5 w-5" />
           )}
         </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Saved explanations"
+          onClick={() => setExplanationsSidebarOpen(true)}
+        >
+          <BookOpen className="h-5 w-5" />
+        </Button>
       </AppHeader>
+      <ExplanationsSidebar
+        open={explanationsSidebarOpen}
+        onOpenChange={setExplanationsSidebarOpen}
+      />
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-8">

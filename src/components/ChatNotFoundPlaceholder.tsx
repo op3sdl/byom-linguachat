@@ -1,10 +1,10 @@
 import { Button } from './ui/button';
 
 interface ChatNotFoundPlaceholderProps {
-  onGoToChats: () => void;
+  onNewChat: () => void;
 }
 
-function ChatNotFoundPlaceholder({ onGoToChats }: ChatNotFoundPlaceholderProps) {
+function ChatNotFoundPlaceholder({ onNewChat }: ChatNotFoundPlaceholderProps) {
   return (
     <div className="flex items-center justify-center h-full">
       <div className="max-w-2xl text-center text-muted-foreground px-4">
@@ -29,8 +29,8 @@ function ChatNotFoundPlaceholder({ onGoToChats }: ChatNotFoundPlaceholderProps) 
             This chat doesn't exist or may have been deleted.
           </p>
         </div>
-        <Button variant="secondary" onClick={onGoToChats}>
-          Go to chats
+        <Button variant="secondary" onClick={onNewChat}>
+          New chat
         </Button>
       </div>
     </div>
