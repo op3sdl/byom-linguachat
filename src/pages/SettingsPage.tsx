@@ -5,12 +5,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DEFAULT_SETTINGS, useSettingsStore } from '../store/settingsStore';
-import { useChats } from '../hooks/useChats';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import AppHeader from '../components/AppHeader';
+import BackButton from '../components/BackButton';
 
 const settingsSchema = z.object({
   apiKey: z.string().min(1, 'API key is required'),
@@ -26,22 +25,16 @@ function SettingsPage() {
   const navigate = useNavigate();
   const settings = useSettingsStore((state) => state.settings);
   const updateSettings = useSettingsStore((state) => state.updateSettings);
-  const { createChat } = useChats();
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const handleNewChat = () => {
-    const newChat = createChat(settings.nativeLanguage, settings.targetLanguage);
-    navigate(`/chat/${newChat.id}`);
-  };
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
+    mode: 'onChange',
     defaultValues: {
       apiKey: settings.apiKey,
       apiBaseUrl: settings.apiBaseUrl ?? '',
@@ -56,147 +49,145 @@ function SettingsPage() {
       ...data,
       apiBaseUrl: data.apiBaseUrl || undefined,
     });
-    setSaved(true);
-    setTimeout(() => navigate('/chats'), 1000);
+    navigate(-1);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <AppHeader title="Settings" onNewChat={handleNewChat} />
+      <AppHeader
+        title="Settings"
+        leftAction={<BackButton />}
+      >
+        <Button
+          type="submit"
+          form="settings-form"
+          disabled={!isValid}
+        >
+          Save
+        </Button>
+      </AppHeader>
 
       <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-lg mx-auto space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Settings</CardTitle>
-              <CardDescription>
-                Configure your API key and language preferences to start using
-                llmingo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="apiKey">
-                    OpenAI API Key <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showApiKey ? "text" : "password"}
-                      id="apiKey"
-                      {...register('apiKey')}
-                      placeholder="sk-..."
-                      className="pr-20"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8"
-                    >
-                      {showApiKey ? (
-                        <>
-                          <EyeOff className="h-4 w-4 mr-1" />
-                          Hide
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4 mr-1" />
-                          Show
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  {errors.apiKey && (
-                    <p className="text-sm text-destructive">{errors.apiKey.message}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    Your API key is stored locally in your browser and never sent
-                    to any server except OpenAI or the endpoint you provide.
-                  </p>
-                </div>
+        <div className="max-w-lg mx-auto">
+          <form id="settings-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <section className="space-y-4">
+              <h2 className="text-base font-semibold text-foreground">Languages</h2>
 
-                <div className="space-y-2">
-                  <Label htmlFor="apiBaseUrl">API Base URL (optional)</Label>
+              <div className="space-y-2">
+                <Label htmlFor="nativeLanguage">
+                  I will be writing in <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  id="nativeLanguage"
+                  {...register('nativeLanguage')}
+                  placeholder={DEFAULT_SETTINGS.nativeLanguage}
+                />
+                {errors.nativeLanguage && (
+                  <p className="text-sm text-destructive">{errors.nativeLanguage.message}</p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  What languages LLM should expect from you.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="targetLanguage">
+                  I am learning <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  id="targetLanguage"
+                  {...register('targetLanguage')}
+                  placeholder={DEFAULT_SETTINGS.targetLanguage}
+                />
+                {errors.targetLanguage && (
+                  <p className="text-sm text-destructive">{errors.targetLanguage.message}</p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  The language LLM will teach you.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-base font-semibold text-foreground">LLM API Settings</h2>
+
+              <div className="space-y-2">
+                <Label htmlFor="apiKey">
+                  OpenAI API Key <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
                   <Input
-                    type="text"
-                    id="apiBaseUrl"
-                    {...register('apiBaseUrl')}
-                    placeholder={DEFAULT_SETTINGS.apiBaseUrl}
+                    type={showApiKey ? "text" : "password"}
+                    id="apiKey"
+                    {...register('apiKey')}
+                    placeholder="sk-..."
+                    className="pr-20"
                   />
-                  {errors.apiBaseUrl && (
-                    <p className="text-sm text-destructive">{errors.apiBaseUrl.message}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    For OpenAI-compatible providers like Ollama or Together AI.
-                    Leave empty for default OpenAI endpoint.
-                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8"
+                  >
+                    {showApiKey ? (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-1" />
+                        Hide
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-1" />
+                        Show
+                      </>
+                    )}
+                  </Button>
                 </div>
+                {errors.apiKey && (
+                  <p className="text-sm text-destructive">{errors.apiKey.message}</p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Your API key is stored locally in your browser and never sent
+                  to any server except OpenAI or the endpoint you provide.
+                </p>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="model">
-                    Model <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    type="text"
-                    id="model"
-                    {...register('model')}
-                    placeholder={DEFAULT_SETTINGS.model}
-                  />
-                  {errors.model && (
-                    <p className="text-sm text-destructive">{errors.model.message}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">Model to use.</p>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="apiBaseUrl">API Base URL (optional)</Label>
+                <Input
+                  type="text"
+                  id="apiBaseUrl"
+                  {...register('apiBaseUrl')}
+                  placeholder={DEFAULT_SETTINGS.apiBaseUrl}
+                />
+                {errors.apiBaseUrl && (
+                  <p className="text-sm text-destructive">{errors.apiBaseUrl.message}</p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  For OpenAI-compatible providers like Ollama or Together AI.
+                  Leave empty for default OpenAI endpoint.
+                </p>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="nativeLanguage">
-                    I will be writing in <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    type="text"
-                    id="nativeLanguage"
-                    {...register('nativeLanguage')}
-                    placeholder={DEFAULT_SETTINGS.nativeLanguage}
-                  />
-                  {errors.nativeLanguage && (
-                    <p className="text-sm text-destructive">{errors.nativeLanguage.message}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    What languages LLM should expect from you.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="targetLanguage">
-                    I am learning <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    type="text"
-                    id="targetLanguage"
-                    {...register('targetLanguage')}
-                    placeholder={DEFAULT_SETTINGS.targetLanguage}
-                  />
-                  {errors.targetLanguage && (
-                    <p className="text-sm text-destructive">{errors.targetLanguage.message}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    The language LLM will teach you.
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-end gap-4 pt-4">
-                  {saved && (
-                    <span className="text-sm font-medium text-green-600">
-                      Settings saved successfully!
-                    </span>
-                  )}
-                  <Button type="submit">Save Settings</Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+              <div className="space-y-2">
+                <Label htmlFor="model">
+                  Model <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  id="model"
+                  {...register('model')}
+                  placeholder={DEFAULT_SETTINGS.model}
+                />
+                {errors.model && (
+                  <p className="text-sm text-destructive">{errors.model.message}</p>
+                )}
+                <p className="text-sm text-muted-foreground">Model to use.</p>
+              </div>
+            </section>
+          </form>
         </div>
       </div>
     </div>
