@@ -26,7 +26,7 @@ function ExplanationsSidebar({ open, onOpenChange }: ExplanationsSidebarProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[640px] p-0 flex flex-col">
+      <SheetContent side="right" className="w-full sm:max-w-[400px] p-0 flex flex-col">
         <div className="flex-shrink-0 px-6 py-4 border-b">
           <SheetHeader>
             <SheetTitle>Explanations</SheetTitle>
@@ -47,6 +47,7 @@ function ExplanationsSidebar({ open, onOpenChange }: ExplanationsSidebarProps) {
                 key={explanation.id}
                 title={explanation.selection}
                 date={explanation.savedAt}
+                subtitle={explanation.explanation.translation}
                 onClick={() => handleNavigateToExplanation(explanation.id)}
                 onDelete={() => deleteExplanation(explanation.id)}
               />
