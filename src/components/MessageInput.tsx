@@ -21,7 +21,7 @@ function MessageInput({ onSend, disabled = false, isLoading = false }: MessageIn
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault();
       handleSend();
     }
@@ -33,7 +33,7 @@ function MessageInput({ onSend, disabled = false, isLoading = false }: MessageIn
   };
 
   return (
-    <div className="border-t border-border bg-card p-4">
+    <div className="border-t border-border bg-card p-4 md:px-8 overflow-y-auto [scrollbar-gutter:stable]">
       <div className="max-w-4xl mx-auto flex gap-3 items-end">
         <div className="flex-1 relative">
           <Textarea
@@ -42,7 +42,7 @@ function MessageInput({ onSend, disabled = false, isLoading = false }: MessageIn
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             disabled={disabled || isLoading}
-            placeholder="Type your message in the target language..."
+            placeholder="Ctrl+Enter to send..."
             className="resize-none min-h-16 md:min-h-12 text-base"
           />
         </div>

@@ -6,6 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { useExplanationsStore } from "../store/explanationsStore";
 import SidebarListItem from "./SidebarListItem";
 import ExplanationDetailSheet from "./ExplanationDetailSheet";
@@ -50,13 +51,22 @@ function ExplanationsSidebar({ open, onOpenChange }: ExplanationsSidebarProps) {
                 <SidebarListItem
                   key={explanation.id}
                   title={explanation.selection}
-                  date={explanation.savedAt}
                   subtitle={explanation.explanation.translation}
                   onClick={() => handleOpenDetail(explanation)}
                   onDelete={() => deleteExplanation(explanation.id)}
                 />
               ))
             )}
+          </div>
+
+          <div className="flex-shrink-0 border-t px-6 py-4">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
           </div>
         </SheetContent>
       </Sheet>

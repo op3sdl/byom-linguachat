@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 
 interface SidebarListItemProps {
   title: string;
-  date: string;
   subtitle?: string;
   onClick: () => void;
   onDelete: () => void;
 }
 
-function SidebarListItem({ title, date, subtitle, onClick, onDelete }: SidebarListItemProps) {
+function SidebarListItem({ title, subtitle, onClick, onDelete }: SidebarListItemProps) {
   const [pendingDelete, setPendingDelete] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -44,13 +43,10 @@ function SidebarListItem({ title, date, subtitle, onClick, onDelete }: SidebarLi
       onClick={onClick}
     >
       <div className="p-4 pr-12">
-        <div className="font-medium text-sm truncate mb-1">{title}</div>
+        <div className="font-medium text-sm truncate">{title}</div>
         {subtitle && (
-          <div className="text-sm text-muted-foreground truncate mb-1">{subtitle}</div>
+          <div className="text-sm text-muted-foreground truncate">{subtitle}</div>
         )}
-        <div className="text-sm text-muted-foreground">
-          {new Date(date).toLocaleDateString()}
-        </div>
       </div>
       <Button
         variant="ghost"

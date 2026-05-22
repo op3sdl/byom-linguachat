@@ -40,7 +40,7 @@ function ChatsSidebar({ open, onOpenChange }: ChatsSidebarProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-full sm:max-w-[640px] p-0 flex flex-col">
+      <SheetContent side="left" className="w-full sm:max-w-[400px] p-0 flex flex-col">
         <div className="flex-shrink-0 px-6 py-4 border-b">
           <SheetHeader>
             <SheetTitle>Chats</SheetTitle>
@@ -70,7 +70,7 @@ function ChatsSidebar({ open, onOpenChange }: ChatsSidebarProps) {
               <SidebarListItem
                 key={chat.id}
                 title={chat.title}
-                date={chat.updatedAt}
+                subtitle={new Date(chat.updatedAt).toLocaleDateString()}
                 onClick={() => handleNavigateToChat(chat.id)}
                 onDelete={() => deleteChat(chat.id)}
               />
