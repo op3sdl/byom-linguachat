@@ -10,7 +10,7 @@ function getOpenAIClient(settings: Settings): OpenAI {
   });
 }
 
-export async function getSpeech(text: string, settings: Settings): Promise<Blob> {
+async function fetchFromAPI(text: string, settings: Settings): Promise<Blob> {
   try {
     const client = getOpenAIClient(settings);
 
@@ -18,7 +18,7 @@ export async function getSpeech(text: string, settings: Settings): Promise<Blob>
       model: "gpt-4o-mini-tts",
       input: text,
       voice: "coral",
-      instructions: "Speak clearly at a slow pace, suitable for a language learner",
+      instructions: `Speak in ${settings.targetLanguage} with correct native pronunciation. Speak clearly at a slow pace, suitable for a language learner.`,
       response_format: "mp3",
     });
 
@@ -30,4 +30,33 @@ export async function getSpeech(text: string, settings: Settings): Promise<Blob>
       { cause: error }
     );
   }
+}
+
+export async function getSpeech(text: string, settings: Settings): Promise<Blob> {
+  if (typeof caches === "undefined") {
+    return fetchFromAPI(text, settings);
+  }
+
+  const cacheKey = `/speech/${encodeURIComponent(settings.targetLanguage)}/${encodeURIComponent(text)}`;
+  let cache: Cache | null = null;
+
+  try {
+    cache = await caches.open("speech-cache");
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit.blob();
+  } catch {
+    cache = null;
+  }
+
+  const blob = await fetchFromAPI(text, settings);
+
+  if (cache) {
+    try {
+      await cache.put(cacheKey, new Response(blob));
+    } catch {
+      // Cache write failed; blob is still returned
+    }
+  }
+
+  return blob;
 }
