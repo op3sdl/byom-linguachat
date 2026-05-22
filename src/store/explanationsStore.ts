@@ -13,6 +13,7 @@ interface ExplanationsState {
   isDialogOpen: boolean;
   error: string | null;
   savedExplanations: SavedExplanation[];
+  hasNewExplanation: boolean;
   setSelection: (selection: string, context: string) => void;
   setExplanation: (explanation: Explanation) => void;
   setLoading: (isLoading: boolean) => void;
@@ -22,6 +23,7 @@ interface ExplanationsState {
   reset: () => void;
   saveExplanation: () => void;
   deleteExplanation: (id: string) => void;
+  clearNewFlag: () => void;
 }
 
 export const useExplanationsStore = create<ExplanationsState>()(
@@ -34,6 +36,7 @@ export const useExplanationsStore = create<ExplanationsState>()(
       isDialogOpen: false,
       error: null,
       savedExplanations: [],
+      hasNewExplanation: false,
       setSelection: (selection, context) =>
         set({ explanationSelection: selection, explanationSelectionContext: context }),
       setExplanation: (explanation) => set({ explanation }),
@@ -74,6 +77,7 @@ export const useExplanationsStore = create<ExplanationsState>()(
 
         set((state) => ({
           savedExplanations: [newSavedExplanation, ...state.savedExplanations],
+          hasNewExplanation: true,
         }));
       },
       deleteExplanation: (id) => {
@@ -81,6 +85,7 @@ export const useExplanationsStore = create<ExplanationsState>()(
           savedExplanations: state.savedExplanations.filter((exp) => exp.id !== id),
         }));
       },
+      clearNewFlag: () => set({ hasNewExplanation: false }),
     }),
     {
       name: SAVED_EXPLANATIONS_STORAGE_KEY,

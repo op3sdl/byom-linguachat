@@ -50,10 +50,18 @@ function ChatViewPage() {
   const setExplanationError = useExplanationsStore((state) => state.setError);
   const saveExplanation = useExplanationsStore((state) => state.saveExplanation);
   const resetExplanation = useExplanationsStore((state) => state.reset);
+  const hasNewExplanation = useExplanationsStore((state) => state.hasNewExplanation);
+  const clearNewFlag = useExplanationsStore((state) => state.clearNewFlag);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeChat?.messages, isSending]);
+
+  useEffect(() => {
+    if (explanationsSidebarOpen) {
+      clearNewFlag();
+    }
+  }, [explanationsSidebarOpen, clearNewFlag]);
 
   const handleSendMessage = useCallback(async (messageText: string) => {
     if (!id) {
@@ -246,14 +254,19 @@ function ChatViewPage() {
             <Volume2 className="h-5 w-5" />
           )}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Saved explanations"
-          onClick={() => setExplanationsSidebarOpen(true)}
-        >
-          <BookOpen className="h-5 w-5" />
-        </Button>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Saved explanations"
+            onClick={() => setExplanationsSidebarOpen(true)}
+          >
+            <BookOpen className="h-5 w-5" />
+          </Button>
+          {hasNewExplanation && (
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full pointer-events-none" />
+          )}
+        </div>
       </AppHeader>
       <ExplanationsSidebar
         open={explanationsSidebarOpen}
