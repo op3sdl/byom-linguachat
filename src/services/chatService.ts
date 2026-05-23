@@ -94,7 +94,7 @@ export async function sendMessage(
  * @param targetLanguage - The language the user is learning
  * @returns System prompt string for the LLM
  */
-export function buildSystemPrompt(
+function buildSystemPrompt(
   nativeLanguage: string,
   targetLanguage: string
 ): string {
@@ -149,4 +149,3 @@ export function buildChatMessages(
   ];
 }
 
-export type { ChatMessage };

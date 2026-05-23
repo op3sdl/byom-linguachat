@@ -6,10 +6,6 @@ import { cn } from "@/lib/utils"
 
 const Sheet = DialogPrimitive.Root
 
-const SheetTrigger = DialogPrimitive.Trigger
-
-const SheetClose = DialogPrimitive.Close
-
 const SheetPortal = DialogPrimitive.Portal
 
 const SheetOverlay = React.forwardRef<
@@ -80,20 +76,6 @@ const SheetHeader = ({
 )
 SheetHeader.displayName = "SheetHeader"
 
-const SheetFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    )}
-    {...props}
-  />
-)
-SheetFooter.displayName = "SheetFooter"
-
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
@@ -122,11 +104,8 @@ export {
   Sheet,
   SheetPortal,
   SheetOverlay,
-  SheetTrigger,
-  SheetClose,
   SheetContent,
   SheetHeader,
-  SheetFooter,
   SheetTitle,
   SheetDescription,
 }

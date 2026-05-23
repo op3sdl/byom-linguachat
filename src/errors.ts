@@ -2,7 +2,7 @@
  * Base application error. All custom errors extend this class,
  * allowing consumers to distinguish app-level errors from unexpected ones.
  */
-export class AppError extends Error {
+class AppError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "AppError";
@@ -12,13 +12,6 @@ export class AppError extends Error {
 /**
  * Thrown when the LLM response cannot be parsed into the expected JSON structure.
  */
-export class ParsingError extends AppError {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "ParsingError";
-  }
-}
-
 /**
  * Thrown when the chat / LLM completion request fails.
  * Proxies the underlying API error message.
